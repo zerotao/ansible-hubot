@@ -1,0 +1,21 @@
+---
+hubot_apt_pkg:
+  - build-essential
+  - libicu-dev
+  - libexpat1-dev
+  - git
+hubot_npm_pkg:
+  - coffee-script
+  - yo
+  - generator-hubot
+robot_name: 'hubot'
+robot_author: 'robot@hubot.robo'
+robot_desc: 'hubot'
+robot_user: "{{ robot_name }}"
+robot_dir: "/opt/{{ robot_name }}/"
+robot_env_dir: "/etc/{{ robot_name }}/env/"
+robot_adapter: 'shell'
+robot_scripts:
+  hubot: '^2.13.2'
+  hubot-diagnostics: '0.0.1'
+  hubot-help: '^0.1.1'

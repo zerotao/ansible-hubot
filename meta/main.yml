@@ -1,0 +1,6 @@
+---
+allow_duplicates: yes
+dependencies:
+  - role: ansible-apt
+  - role: ansible-nodejs
+  - role: ansible-runit

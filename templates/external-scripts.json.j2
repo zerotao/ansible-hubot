@@ -1,0 +1,14 @@
+[
+{% if robot_scripts is defined %}
+{% for key, value in robot_scripts.iteritems() if (
+  key != 'hubot' and
+  key != 'hubot-scripts' and
+  key != 'hubot-' + robot_adapter ) %}
+{% if not loop.last %}
+  "{{ key }}",
+{% else %}
+  "{{ key }}"
+{% endif %}
+{% endfor %}
+{% endif %}
+]

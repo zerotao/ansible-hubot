@@ -1,0 +1,86 @@
+---
+- name: main | install apt package dependencies
+  apt:
+    pkg="{{ item }}"
+    state='present'
+  with_items: hubot_apt_pkg
+  sudo: yes
+  tags: ['hubot', 'apt', 'pkg']
+
+- name: main | install npm package dependencies
+  npm:
+    name="{{ item }}"
+    state='present'
+    production='yes'
+    global='yes'
+  with_items: hubot_npm_pkg
+  sudo: yes
+  tags: ['hubot', 'npm', 'pkg']
+
+- name: main | create app user group
+  group:
+    name="{{ robot_user }}"
+  sudo: yes
+  tags: ['hubot', 'groups', 'users']
+
+- name: main | create robot user
+  user:
+    name="{{ robot_user }}"
+    group="{{ robot_user }}"
+    shell='/bin/bash'
+  sudo: yes
+  tags: ['hubot', 'users']
+
+- name: main | create robot directories
+  file:
+    dest="{{ item }}"
+    state='directory'
+    owner="{{ robot_user }}"
+    group="{{ robot_user }}"
+    mode='0755'
+  with_items:
+    - "{{ robot_dir }}"
+    - "{{ robot_env_dir }}"
+  sudo: yes
+  tags: ['hubot', 'dir']
+
+- name: main | create hubot-powered robot
+  shell:
+    "yo hubot --defaults
+      --name={{ robot_name }}
+      --owner={{ robot_author }}
+      --description={{ robot_desc }}
+      --adapter={{ robot_adapter }}"
+  args:
+    chdir: "{{ robot_dir }}"
+    creates: "{{ robot_dir }}/bin/"
+  sudo: yes
+  sudo_user: "{{ robot_user }}"
+  tags: ['hubot', 'yo']
+
+- name: main | create external-scripts json config
+  template:
+    src: external-scripts.json.j2
+    dest: "{{ robot_dir }}/external-scripts.json"
+  sudo: yes
+  tags: ['hubot', 'config']
+
+- name: main | create package json config
+  template:
+    src: package.json.j2
+    dest: "{{ robot_dir }}/package.json"
+  sudo: yes
+  tags: ['hubot', 'config']
+
+- name: main | write config envvars
+  copy:
+    content="{{ item.value }}"
+    dest="{{ robot_env_dir }}/{{ item.key }}"
+    owner="{{ runit_owner }}"
+    group="{{ runit_group }}"
+    mode='0755'
+  with_dict: robot_env | default({})
+  when: robot_env is defined
+  sudo: yes
+  tags: ['hubot', 'config']
+

@@ -1,0 +1,22 @@
+---
+- hosts: all
+  sudo: yes
+  roles:
+    - role: ansible-hubot
+      robot_adapter: shell
+      robot_scripts:
+        hubot: '^2.13.2'
+        hubot-diagnostics: '0.0.1'
+        hubot-help: '^0.1.1'
+      runit_service:
+        - name: 'hubot'
+          run_script: |
+            #!/bin/sh
+            exec 2>&1
+            cd {{ robot_dir }}
+            exec chpst -u {{ robot_user }} -U {{ robot_user }} \
+            -e {{ robot_env_dir }} {{ robot_dir }}/bin/hubot \
+            --name "{{ robot_name }}" --adapter {{ robot_adapter }}
+          log_script: |
+            #!/bin/sh
+            exec chpst -u nobody logger -d -p local6.info -t [{{ robot_name }}]
